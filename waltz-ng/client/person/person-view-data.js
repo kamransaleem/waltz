@@ -17,10 +17,15 @@ const initModel = {
     managers: [],
     directs: [],
     person: null,
-    involvements: {
+    appInvolvements: {
         direct: [],
         indirect: [],
-        allApps: []
+        all: []
+    },
+    endUserAppInvolvements: {
+        direct: [],
+        indirect: [],
+        all: []
     },
     apps: [],
     appIds: [],
@@ -37,6 +42,53 @@ const initModel = {
         changeInitiativeOverlay: false
     }
 };
+
+
+function buildEndUserAppInvolvementSummary(endUserApps, involvements) {
+    const endUserAppsById = _.keyBy(endUserApps, 'id');
+    const endUserAppInvolvements = _.filter(involvements, i => i.entityReference.kind === 'END_USER_APPLICATION');
+    const directlyInvolvedEndUserAppIds = _.map(endUserAppInvolvements, 'entityReference.id');
+    const allEndUserAppIds = _.map(endUserApps, 'id');
+    const indirectlyInvolvedEndUserAppIds = _.difference(allEndUserAppIds, directlyInvolvedEndUserAppIds);
+    const directEndUserAppInvolvements = _.chain(endUserAppInvolvements)
+        .groupBy('kind')
+        .map((vs, k) => ({kind: k, apps: _.map(vs, v => endUserAppsById[v.entityReference.id])}))
+        .value();
+    const indirectEndUserAppInvolvements = _.map(indirectlyInvolvedEndUserAppIds, id => endUserAppsById[id]);
+
+    const endUserAppSummary = {
+        direct: directEndUserAppInvolvements,
+        indirect: indirectEndUserAppInvolvements,
+        all: endUserApps
+    };
+
+    return endUserAppSummary;
+}
+
+
+function buildAppInvolvementSummary(apps, involvements) {
+    const appsById = _.keyBy(apps, 'id');
+
+    const appInvolvements = _.filter(involvements, i => i.entityReference.kind === 'APPLICATION');
+    const directlyInvolvedAppIds = _.map(appInvolvements, 'entityReference.id');
+
+    const allAppIds = _.map(apps, 'id');
+    const indirectlyInvolvedAppIds = _.difference(allAppIds, directlyInvolvedAppIds);
+
+    const directAppInvolvements = _.chain(appInvolvements)
+        .groupBy('kind')
+        .map((vs, k) => ({kind: k, apps: _.map(vs, v => appsById[v.entityReference.id])}))
+        .value();
+
+    const indirectAppInvolvements = _.map(indirectlyInvolvedAppIds, id => appsById[id]);
+
+    const summary = {
+        direct: directAppInvolvements,
+        indirect: indirectAppInvolvements,
+        all: apps
+    };
+    return summary;
+}
 
 
 function service($q,
@@ -66,34 +118,28 @@ function service($q,
         return $q.all([personPromise, directsPromise, managersPromise]);
     }
 
-    function loadApplications(employeeId) {
+    function loadApplications(employeeId, personId) {
+        const endUserAppIdSelector = {
+            desiredKind: 'END_USER_APPLICATION',
+            entityReference: {
+                kind: 'PERSON',
+                id: personId
+            },
+            scope: 'CHILDREN'
+        };
+
         return $q.all([
             involvementStore.findByEmployeeId(employeeId),
-            involvementStore.findAppsForEmployeeId(employeeId)
-        ]).then(([involvements, apps]) => {
-            const appsById = _.keyBy(apps, 'id');
+            involvementStore.findAppsForEmployeeId(employeeId),
+            involvementStore.findEndUserAppsBydSelector(endUserAppIdSelector)
+        ]).then(([involvements, apps, endUserApps]) => {
 
-            const appInvolvements = _.filter(involvements, i => i.entityReference.kind === 'APPLICATION');
-            const directlyInvolvedAppIds = _.map(appInvolvements, 'entityReference.id');
-
-            const allAppIds = _.map(apps, 'id');
-            const indirectlyInvolvedAppIds = _.difference(allAppIds, directlyInvolvedAppIds);
-
-            const directAppInvolvements = _.chain(appInvolvements)
-                .groupBy('kind')
-                .map((vs, k) => ({ kind: k, apps: _.map(vs, v => appsById[v.entityReference.id])}))
-                .value();
-
-            const indirectAppInvolvements = _.map(indirectlyInvolvedAppIds, id => appsById[id]);
-
-            const summary = {
-                direct: directAppInvolvements,
-                indirect: indirectAppInvolvements,
-                allApps: apps
-            };
+            const appsSummary = buildAppInvolvementSummary(apps, involvements);
+            const endUserAppsSummary = buildEndUserAppInvolvementSummary(endUserApps, involvements);
 
             state.model.apps = apps;
-            state.model.involvements = summary;
+            state.model.appInvolvements = appsSummary;
+            state.model.endUserAppInvolvements = endUserAppsSummary;
 
             return state.model;
 
@@ -153,7 +199,9 @@ function service($q,
         loadChangeInitiatives(employeeId);
 
         const peoplePromise = loadPeople(employeeId)
-            .then(() => state.model.person.id)
+            .then(() => state.model.person.id);
+
+        const statsPromises = peoplePromise
             .then(personId => {
                 loadFlows(personId);
                 loadCostStats(personId);
@@ -162,9 +210,10 @@ function service($q,
                 loadSourceDataRatings();
             });
 
-        const appPromise = loadApplications(employeeId);
+        const appPromise = peoplePromise
+            .then((personId) => loadApplications(employeeId, personId));
 
-        return $q.all([peoplePromise, appPromise]);
+        return $q.all([statsPromises, appPromise]);
     }
 
 
