@@ -74,6 +74,7 @@ function controller($scope,
 
         vm.hasAppInvolvements = hasInvolvements(model.appInvolvements);
         vm.hasEndUserAppInvolvements = hasInvolvements(model.endUserAppInvolvements);
+        vm.hasInvolvements = vm.hasAppInvolvements || vm.hasEndUserAppInvolvements;
         vm.charts = {
             apps: mkAppChartData(model.appInvolvements.all),
             endUserApps: mkAppChartData(model.endUserAppInvolvements.all)

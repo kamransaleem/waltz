@@ -27,6 +27,11 @@ const initModel = {
         indirect: [],
         all: []
     },
+    combinedAppInvolvements: {
+        direct: [],
+        indirect: [],
+        all: []
+    },
     apps: [],
     appIds: [],
     changeInitiatives: [],
@@ -44,40 +49,20 @@ const initModel = {
 };
 
 
-function buildEndUserAppInvolvementSummary(endUserApps, involvements) {
-    const endUserAppsById = _.keyBy(endUserApps, 'id');
-    const endUserAppInvolvements = _.filter(involvements, i => i.entityReference.kind === 'END_USER_APPLICATION');
-    const directlyInvolvedEndUserAppIds = _.map(endUserAppInvolvements, 'entityReference.id');
-    const allEndUserAppIds = _.map(endUserApps, 'id');
-    const indirectlyInvolvedEndUserAppIds = _.difference(allEndUserAppIds, directlyInvolvedEndUserAppIds);
-    const directEndUserAppInvolvements = _.chain(endUserAppInvolvements)
-        .groupBy('kind')
-        .map((vs, k) => ({kind: k, apps: _.map(vs, v => endUserAppsById[v.entityReference.id])}))
-        .value();
-    const indirectEndUserAppInvolvements = _.map(indirectlyInvolvedEndUserAppIds, id => endUserAppsById[id]);
-
-    const endUserAppSummary = {
-        direct: directEndUserAppInvolvements,
-        indirect: indirectEndUserAppInvolvements,
-        all: endUserApps
-    };
-
-    return endUserAppSummary;
-}
-
-
 function buildAppInvolvementSummary(apps, involvements) {
     const appsById = _.keyBy(apps, 'id');
 
-    const appInvolvements = _.filter(involvements, i => i.entityReference.kind === 'APPLICATION');
-    const directlyInvolvedAppIds = _.map(appInvolvements, 'entityReference.id');
+    const directlyInvolvedAppIds = _.map(involvements, 'entityReference.id');
 
     const allAppIds = _.map(apps, 'id');
     const indirectlyInvolvedAppIds = _.difference(allAppIds, directlyInvolvedAppIds);
 
-    const directAppInvolvements = _.chain(appInvolvements)
-        .groupBy('kind')
-        .map((vs, k) => ({kind: k, apps: _.map(vs, v => appsById[v.entityReference.id])}))
+    const directAppInvolvements = _.chain(involvements)
+        .map(inv => {
+            let app = appsById[inv.entityReference.id];
+            app = _.assign(app, {role: inv.kind})
+            return app;
+        })
         .value();
 
     const indirectAppInvolvements = _.map(indirectlyInvolvedAppIds, id => appsById[id]);
@@ -134,15 +119,28 @@ function service($q,
             involvementStore.findEndUserAppsBydSelector(endUserAppIdSelector)
         ]).then(([involvements, apps, endUserApps]) => {
 
-            const appsSummary = buildAppInvolvementSummary(apps, involvements);
-            const endUserAppsSummary = buildEndUserAppInvolvementSummary(endUserApps, involvements);
+            const appsSummary = buildAppInvolvementSummary(apps,
+                _.filter(involvements, i => i.entityReference.kind === 'APPLICATION'));
+            const endUserAppsSummary = buildAppInvolvementSummary(endUserApps,
+                _.filter(involvements, i => i.entityReference.kind === 'END_USER_APPLICATION'));
+
+            const appsWithManagement = _.map(apps, a => _.assign(a, {management: 'IT'}));
+            const endUserAppsWithManagement = _.map(_.cloneDeep(endUserApps),
+                a => _.assign(a, {
+                    management: 'End User',
+                    platform: a.kind,
+                    kind: 'EUC',
+                    overallRating: 'Z'
+                }));
+            const combinedApps = _.concat(appsWithManagement, endUserAppsWithManagement);
+            const combinedSummary = buildAppInvolvementSummary(combinedApps, involvements);
 
             state.model.apps = apps;
             state.model.appInvolvements = appsSummary;
             state.model.endUserAppInvolvements = endUserAppsSummary;
+            state.model.combinedAppInvolvements = combinedSummary;
 
             return state.model;
-
         });
     }
 
