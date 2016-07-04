@@ -1,8 +1,8 @@
-c:/dev/tools/liquibase/liquibase ^
+C:/tools/liquibase-3.5.1-bin/liquibase.bat ^
 --driver=org.mariadb.jdbc.Driver ^
---classpath=c:/dev/tools/javalib/mariadb-java-client-1.3.2.jar ^
+--classpath=C:/Users/Kamran/.IntelliJIdea2016.1/config/jdbc-drivers/mariadb-java-client-1.4.6.jar ^
 --changeLogFile=db.changelog-master.xml ^
---url="jdbc:mysql://localhost:3306/scratch" ^
+--url="jdbc:mysql://localhost:3307/waltz" ^
 --username=root ^
---password=password ^
+--password=password@123 ^
 migrate

@@ -1,3 +1,7 @@
 language: java
 jdk: oraclejdk8
-script: mvn clean compile -Pwaltz-mssql,azure-mssql
+script: mvn clean compile -Pwaltz-mariadb,azure-maria
+
+env:
+  global:
+    - secure: "Y4aVcLvqDuxMCNYM2dBsawmCJnLWjCQ8xhxT4evcwr5s0WiYH0tPs0MCUVZr7/iUL80rNvMglv8S9ljLZmKYZ/qPlgcr2opiiwNZzHcgiAJ+4116dMxq+tb7HbDavWll2aDGsId/zQqJRzD0vFNf0HmYLm3JBtB12I0i3uiCcAV9v8rg3XYFsN9M8MAPmip7yTfqvP1Q7lmQNdAfUEt56dB3RC7DbVCsxJ/4GbAGlv22iXelLg2BQqMMxM5ocBbUOMFcC4EwP0XjhGkIBVHi3m8rxCvbhS4hD2qJT/vwAOXV/vTkhHO48CO/yO6L0Ye661dM2j6YhYEE1oeR3MKtfzgHP38XBN8ptm4+Ksa5/Mq9i34gkPLex3IM7FOQq5UVid1kgNpOBEHyOWY4+CYhTbuo/Rp0N/fZGPWHJv2U2bXOWf5BD/2B+MCCNape7Vlyi+eO0R8Va2da4v/9xNjeNsecOInHntGp3/RmQvBvyx7O94giUrTjG6wWEyxLhyiymHyvUK2KXN4LY/VHuVsXf1/QVNUuazfOwnynBMakOaVUB+YzGhSvBWmLpsQpOtFHtDD0fD77WaWEpuPWW0/DTIqL4WdWvSWqbFxq5aD2DDrDelm5vGFd+GOi3TYvS5TKDL3meravfUOdVR2/Um8i+X2QEn/APUcgBLclZDuNkoM="
