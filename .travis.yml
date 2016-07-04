@@ -1,6 +1,6 @@
 language: java
 jdk: oraclejdk8
-script: mvn clean compile -Pwaltz-mariadb,azure-maria
+script: mvn clean compile -Pwaltz-mariadb,azure-maria --settings ./settings.xml
 
 env:
   global:
