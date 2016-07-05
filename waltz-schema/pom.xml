@@ -107,7 +107,7 @@
 
                 <executions>
                     <execution>
-                        <phase>compile</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>update</goal>
                         </goals>
@@ -124,7 +124,6 @@
                 <!-- The plugin should hook into the generate goal -->
                 <executions>
                     <execution>
-                        <phase>compile</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
