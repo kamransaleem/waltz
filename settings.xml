@@ -1,0 +1,15 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <profiles>
+        <profile>
+            <id>travis-mariadb</id>
+            <properties>
+                <database.url>jdbc:mysql://127.0.0.1:3306/waltz</database.url>
+                <database.user>root</database.user>
+                <database.password></database.password>
+                <database.schema>waltz</database.schema>
+            </properties>
+        </profile>
+    </profiles>
+</settings>

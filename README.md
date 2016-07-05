@@ -1,4 +1,5 @@
 # Khartec - Waltz
+[![Build Status](https://travis-ci.org/kamransaleem/waltz.svg?branch=waltz-257-continuous-integration)](https://travis-ci.org/kamransaleem/waltz)
 
 ## Technology Stack
 
