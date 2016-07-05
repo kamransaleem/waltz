@@ -105,10 +105,6 @@
                     <url>${database.url}</url>
                     <username>${database.user}</username>
                     <password>${database.password}</password>
-                    <tasks>
-                        <echo>Displaying value of 'database.url' property</echo>
-                        <echo>[database.url] ${database.url}</echo>
-                    </tasks>
                 </configuration>
 
                 <executions>

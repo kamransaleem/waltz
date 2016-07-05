@@ -7,3 +7,8 @@ addons:
 
 before_install:
   - mysql -u root -e "create database IF NOT EXISTS waltz;"
+
+
+cache:
+  directories:
+    - $HOME/.m2
