@@ -1,0 +1,6 @@
+waltz:
+  adapter: mysql
+  hostname: 127.0.0.1
+  database: waltz
+  username: root
+  password:
