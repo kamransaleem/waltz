@@ -4,7 +4,13 @@ script: mvn clean compile -Pwaltz-mariadb,travis-mariadb
 addons:
   mariadb: '10.1'
 
+# Stop travis from running mvn install (without profile)
 install: true
 
 before_install:
   - mysql -u root -e "create database IF NOT EXISTS waltz;"
+
+# Enable caching of dependencies
+cache:
+  directories:
+    - $HOME/.m2
