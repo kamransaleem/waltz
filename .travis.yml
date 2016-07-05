@@ -1,6 +1,6 @@
 language: java
 jdk: oraclejdk8
-script: mvn clean compile -Pwaltz-mariadb,travis-mariadb -X
+script: mvn clean compile -Pwaltz-mariadb,travis-mariadb --settings ./settings.xml
 addons:
   mariadb: '10.1'
 
