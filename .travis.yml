@@ -6,7 +6,6 @@ addons:
 
 
 before_install:
-  - cp database.yml.travis config/database.yml
   - mysql -u root -e "create database IF NOT EXISTS waltz;"
 
 
