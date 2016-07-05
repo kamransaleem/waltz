@@ -4,11 +4,5 @@ script: mvn clean compile -Pwaltz-mariadb,travis-mariadb
 addons:
   mariadb: '10.1'
 
-
 before_install:
   - mysql -u root -e "create database IF NOT EXISTS waltz;"
-
-
-cache:
-  directories:
-    - $HOME/.m2
