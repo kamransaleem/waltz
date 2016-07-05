@@ -15,6 +15,10 @@
     <properties>
         <jooq.version>3.7.4</jooq.version>
         <liquibase.maven.version>3.5.1</liquibase.maven.version>
+        <database.url>jdbc:mysql://127.0.0.1:3306/waltz</database.url>
+        <database.user>root</database.user>
+        <database.password></database.password>
+        <database.schema>waltz</database.schema>
     </properties>
 
     <profiles>
