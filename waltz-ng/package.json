@@ -56,8 +56,11 @@
     "ui-select": "0.18.0"
   },
   "devDependencies": {
-    "babel-core": "~5.2.17",
-    "babel-loader": "~5.0.0",
+    "babel-core": "^6.0.0",
+    "babel-loader": "^6.0.0",
+    "babel-polyfill": "^6.20.0",
+    "babel-preset-es2015": "^6.0.0",
+    "babel-preset-stage-0": "^6.0.0",
     "css-loader": "~0.12.0",
     "eslint": "^2.3.0",
     "eslint-config-airbnb": "^6.1.0",

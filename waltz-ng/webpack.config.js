@@ -10,7 +10,7 @@ var basePath = path.resolve(__dirname);
 
 function isExternal(module) {
     // this inspects the userRequest field of the require request
-    // e.g. require('lodash') will like have a userRequest like the following:
+    // e.g. require('lodash').default() will like have a userRequest like the following:
     // node_modules/lodash/lib...
     var userRequest = module.userRequest;
 
