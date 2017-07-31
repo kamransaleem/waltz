@@ -38,6 +38,7 @@ const initialState = {
     flowDiagramEntities: [],
     diagrams: [],
     visibility: {
+        deletePrompt: false,
         diagram: false,
         editor: false
     },
@@ -257,6 +258,7 @@ function controller(
                 CORE_API.FlowDiagramStore.deleteForId,
                 [id])
             .then(() => {
+                vm.visibility.deletePrompt = false;
                 reload();
                 clearSelections();
                 flowDiagramStateService.reset();
