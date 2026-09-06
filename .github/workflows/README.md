@@ -167,12 +167,13 @@ The workflow includes a `check-jooq-secrets` step which:
 
 # 🔎 CVE / Dependency Scanning
 
-Two scheduled workflows check dependencies for known vulnerabilities:
+The `cve-scanning.yml` workflow checks dependencies for known vulnerabilities and publishes a
+single combined report artifact. It runs two scans in one job:
 
-| Workflow | Scans | Tool | Required secrets |
-|----------|-------|------|------------------|
-| `cve-scanning.yml` | Java / Maven dependencies | OWASP dependency-check (report-only) | `NVD_API_KEY` |
-| `cve-scanning-node.yml` | `waltz-ng` production dependencies | auditjs / Sonatype OSS Index | `OSSINDEX_USER`, `OSSINDEX_TOKEN` |
+| Scan | Dependencies | Tool | Required secrets |
+|------|--------------|------|------------------|
+| Java / Maven | backend dependencies | OWASP dependency-check (aggregate HTML report) | `NVD_API_KEY` |
+| Frontend | `waltz-ng` production dependencies | auditjs / Sonatype OSS Index (text report) | `OSSINDEX_USER`, `OSSINDEX_TOKEN` |
 
 ### Required secrets
 
@@ -183,19 +184,24 @@ Two scheduled workflows check dependencies for known vulnerabilities:
 
 ### Triggers
 
-Both run on **push to `master`** (when the relevant dependency files change), on a **daily
-schedule**, and via **manual `workflow_dispatch`**. They do **not** run on `pull_request`,
+Runs on **push to `master`** (when Maven or `waltz-ng` dependency files change), on a **daily
+schedule**, and via **manual `workflow_dispatch`**. It does **not** run on `pull_request`,
 because — as with the jOOQ secrets above — GitHub does not expose repository secrets to
-fork-based PRs. After adding the secrets, run each workflow once from the Actions tab
+fork-based PRs. After adding the secrets, run the workflow once from the Actions tab
 (`Run workflow`) to verify.
+
+### Report artifact
+
+Both reports are published together as a single **`cve-reports`** artifact on each run,
+containing `dependency-check-report.html` (Java) and `auditjs-report.txt` (frontend).
 
 ### Mode: report-only
 
-Both scans are **report-only**: they publish their findings (the dependency-check HTML report as
-a build artifact; the auditjs output in the step log) but do **not** fail the build. This surfaces
-the current vulnerability backlog for triage without blocking. Remediation of the known backlog
-(e.g. Spring/Jackson upgrades and the AngularJS migration) is tracked in separate issues; the gate
-can be tightened later (e.g. via `failBuildOnCVSS`) once that backlog is cleared.
+Both scans are **report-only**: they publish findings (in the `cve-reports` artifact) but do
+**not** fail the build. This surfaces the current vulnerability backlog for triage without
+blocking. Remediation of the known backlog (e.g. Spring/Jackson upgrades and the AngularJS
+migration) is tracked in separate issues; the gate can be tightened later (e.g. via
+`failBuildOnCVSS`) once that backlog is cleared.
 
 ---
 
