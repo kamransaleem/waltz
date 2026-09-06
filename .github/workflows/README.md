@@ -171,7 +171,7 @@ Two scheduled workflows check dependencies for known vulnerabilities:
 
 | Workflow | Scans | Tool | Required secrets |
 |----------|-------|------|------------------|
-| `cve-scanning.yml` | Java / Maven dependencies | OWASP dependency-check (fails on CVSS ≥ 7) | `NVD_API_KEY` |
+| `cve-scanning.yml` | Java / Maven dependencies | OWASP dependency-check (report-only) | `NVD_API_KEY` |
 | `cve-scanning-node.yml` | `waltz-ng` production dependencies | auditjs / Sonatype OSS Index | `OSSINDEX_USER`, `OSSINDEX_TOKEN` |
 
 ### Required secrets
@@ -188,6 +188,14 @@ schedule**, and via **manual `workflow_dispatch`**. They do **not** run on `pull
 because — as with the jOOQ secrets above — GitHub does not expose repository secrets to
 fork-based PRs. After adding the secrets, run each workflow once from the Actions tab
 (`Run workflow`) to verify.
+
+### Mode: report-only
+
+Both scans are **report-only**: they publish their findings (the dependency-check HTML report as
+a build artifact; the auditjs output in the step log) but do **not** fail the build. This surfaces
+the current vulnerability backlog for triage without blocking. Remediation of the known backlog
+(e.g. Spring/Jackson upgrades and the AngularJS migration) is tracked in separate issues; the gate
+can be tightened later (e.g. via `failBuildOnCVSS`) once that backlog is cleared.
 
 ---
 
