@@ -163,6 +163,34 @@ The workflow includes a `check-jooq-secrets` step which:
 
 ---
 
+---
+
+# 🔎 CVE / Dependency Scanning
+
+Two scheduled workflows check dependencies for known vulnerabilities:
+
+| Workflow | Scans | Tool | Required secrets |
+|----------|-------|------|------------------|
+| `cve-scanning.yml` | Java / Maven dependencies | OWASP dependency-check (fails on CVSS ≥ 7) | `NVD_API_KEY` |
+| `cve-scanning-node.yml` | `waltz-ng` production dependencies | auditjs / Sonatype OSS Index | `OSSINDEX_USER`, `OSSINDEX_TOKEN` |
+
+### Required secrets
+
+- **`NVD_API_KEY`** — OWASP dependency-check now mandates an NVD API key to download the
+  vulnerability feed. Request a free key: <https://nvd.nist.gov/developers/request-an-api-key>
+- **`OSSINDEX_USER` / `OSSINDEX_TOKEN`** — Sonatype OSS Index no longer allows anonymous audits.
+  Register a free account and token: <https://ossindex.sonatype.org/>
+
+### Triggers
+
+Both run on **push to `master`** (when the relevant dependency files change), on a **daily
+schedule**, and via **manual `workflow_dispatch`**. They do **not** run on `pull_request`,
+because — as with the jOOQ secrets above — GitHub does not expose repository secrets to
+fork-based PRs. After adding the secrets, run each workflow once from the Actions tab
+(`Run workflow`) to verify.
+
+---
+
 ## Summary
 
 This setup provides:
