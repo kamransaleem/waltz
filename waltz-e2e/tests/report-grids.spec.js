@@ -153,7 +153,11 @@ test("report grid: create, add columns, update overview, edit and remove columns
     // ---------------------------------------------------------------------------------------
     await page.locator("label[for=columns]").click();
 
+    // The previous save reloads the grid; wait for the summary to settle at its two columns
+    // before interacting, so we never act on / count a transient mid-reload state.
     const columnRows = page.locator("tr.waltz-visibility-parent");
+    await expect(columnRows).toHaveCount(2);
+
     const firstColumn = columnRows.first();
     await firstColumn.hover();
     await firstColumn.locator("button.btn-skinny:not([title])").first().click();
@@ -171,7 +175,11 @@ test("report grid: create, add columns, update overview, edit and remove columns
     // ---------------------------------------------------------------------------------------
     // Scenario 6: remove a column (Column Editor tab).
     // ---------------------------------------------------------------------------------------
-    const columnsBefore = await columnRows.count();
+    // Re-open the editor and wait for the summary to settle after the previous save/reload,
+    // so the removal acts on a stable two-column state.
+    await page.locator("label[for=columns]").click();
+    await expect(columnRows).toHaveCount(2);
+
     const lastColumn = columnRows.last();
     await lastColumn.hover();
     await lastColumn.locator("button.btn-skinny:not([title])").last().click();
@@ -179,7 +187,7 @@ test("report grid: create, add columns, update overview, edit and remove columns
     await page.locator(".waltz-sticky-part").getByRole("button", { name: "Remove", exact: true }).click();
     await page.getByRole("button", { name: "Save this report" }).click();
 
-    await expect(columnRows).toHaveCount(columnsBefore - 1);
+    await expect(columnRows).toHaveCount(1);
 
     // ---------------------------------------------------------------------------------------
     // Scenario 7: delete the grid.
