@@ -163,6 +163,33 @@ The workflow includes a `check-jooq-secrets` step which:
 
 ---
 
+# 🔎 Static Analysis (SAST)
+
+The `semgrep.yml` workflow runs [Semgrep](https://semgrep.dev/) static analysis over the codebase
+on every pull request and publishes the findings as a SARIF report artifact.
+
+### Rules
+
+It uses Semgrep's community rules via `--config auto`. These run without a login token, so the
+scan works on fork-based pull requests.
+
+### Optional secret
+
+- **`SEMGREP_APP_TOKEN`** — optional. When present it enriches the rule set from the Semgrep
+  registry; when absent (e.g. fork PRs) the scan falls back to the community rules only.
+
+### Report artifact
+
+Findings are published as a **`semgrep-sarif`** artifact (`semgrep.sarif`) on each run.
+
+### Mode: report-only
+
+The scan is **report-only**: it surfaces findings for triage but does **not** fail the build.
+This exposes the current backlog without blocking. The gate can be tightened later (by removing
+the `|| true` so findings fail the build) once the backlog is triaged.
+
+---
+
 ## Summary
 
 This setup provides:
